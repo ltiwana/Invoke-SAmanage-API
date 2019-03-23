@@ -1,5 +1,5 @@
 # Invoke-SAmanage-API
-Note: I will improve the instruction to keep an eye
+Note: I will improve the instruction so keep an eye
 
 This PowerShell module can help you make get or put API calls to SAManage ticketing system
 
