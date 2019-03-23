@@ -21,4 +21,4 @@ By default the Invoke-SAmanageJsonAPI function returns JSON string and converts 
 Invoke-SAmanageJsonAPI -URI $APIURI -Method "Get" -BearerToken $BearerToken -AllPages -Verbose
 
 ### Results:
-![alt text](/Screenshot/1.png)
+![alt text](/Screenshots/1.png)
