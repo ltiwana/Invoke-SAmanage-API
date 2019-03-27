@@ -20,9 +20,7 @@ Function Invoke-SAmanageJsonAPI {
     $Headers.add("Content-Type", 'application/json')
     $Headers.Add("X-Samanage-Authorization", "Bearer $BearerToken")
 
-    #$Headers.Add("Accept", 'application/vnd.samanage.v2.1+xml')
-    #$Headers.Add("X-Samanage-Authorization", 'Bearer bG92ZXBhcnRlZWtAbHVzaC5jb20=:eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjo0NTk2Njk4LCJnZW5lcmF0ZWRfYXQiOiIyMDE5LTAyLTExIDE2OjAyOjUwIn0.B6i7-do3IQxbmfcSNVyREA_paZdRRaYdD_1nigj-osCUdLgcbB81SVp8N0Z4WucaGu_QFBDFlBuFaSIVWv8c4Q')
-    
+
     Write-Verbose "Making $Method API call"
 
     Switch ($Method) {
