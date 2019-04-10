@@ -2,9 +2,12 @@ Function Invoke-SAmanageJsonAPI {
     
     Param (        
         [cmdletbinding()]
-        [string]$URI,        
-        [string]$BearerToken,
+        [Parameter(Position=0,Mandatory=$True)]
+        [string]$URI,
+        [Parameter(Position=0,Mandatory=$True)]
         [string]$Method,
+        [Parameter(Position=2,Mandatory=$True)]
+        [string]$BearerToken,
         $Body,
         [int]$Results = 100,
         [Switch]$Verbose,
