@@ -1,26 +1,29 @@
 Function Invoke-SAmanageJsonAPI {
     
     Param (        
-        [int]$Results = 100,
-        [Switch]$AllPages = $False,
+        [cmdletbinding()]
         [string]$URI,        
         [string]$BearerToken,
         [string]$Method,
-        $Body
+        $Body,
+        [int]$Results = 100,
+        [Switch]$Verbose,
+        [Switch]$AllPages = $False
     )
+
 
     [int]$i = 1
     [array]$APIdataJson = @()
     
 
-    Write-Verbose "Info: Getting things ready for the API call"
-    Write-Verbose "Info: Setting up JSON API header"
+    Write-Verbose "Getting things ready for the API call"
+    Write-Verbose "Setting up JSON API header"
     $Headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
     $Headers.Add("Accept", 'application/vnd.samanage.v2.1+json')
     $Headers.add("Content-Type", 'application/json')
     $Headers.Add("X-Samanage-Authorization", "Bearer $BearerToken")
 
-
+    
     Write-Verbose "Making $Method API call"
 
     Switch ($Method) {
@@ -29,45 +32,51 @@ Function Invoke-SAmanageJsonAPI {
             
 
 
-            Write-Verbose "Action: Making first Get API call"
+            Write-Verbose "Making first Get API call"
 
             $APIdata = Invoke-WebRequest -URI $URI -Method $Method -Headers $Headers -Verbose
-            $APIdataJson += ConvertFrom-Json $APIdata
 
-            $APITotalPages = $APIdata.Headers.'X-Total-Pages'
+            if ($APIdata -ne $null -or $APIdata) {
+                $APIdataJson += ConvertFrom-Json $APIdata
 
-            Write-Verbose "Info: Checking API header for total number content pages"
-            Write-Verbose "Info: $APITotalPages pages found"
+                $APITotalPages = $APIdata.Headers.'X-Total-Pages'
 
-            if ($APITotalPages -gt "1" -and $AllPages -eq $True) {
+                Write-Verbose "Checking API header for total number content pages"
+                Write-Verbose "$APITotalPages pages found"
+
+                if ($APITotalPages -gt "1" -and $AllPages -eq $True) {
         
-                Write-Verbose "Info: User requested all pages"
-                Write-Verbose "Info: Getting results from each page"
+                    Write-Verbose "User requested all pages"
+                    Write-Verbose "Getting results from each page"
 
-                do {
+                    do {
                     
-                    $i++
+                        $i++
 
-                    if ($VerbosePreference -eq "Continue") {
+                        if ($VerbosePreference -eq "Continue") {
                        
-                        $Percentage = [math]::Round($i/$APITotalPages*100)
-                        Write-Progress -Activity ("Completed $i out of $APITotalPages") -Status "Current progress: $Percentage%"  -PercentComplete $Percentage
-                    } 
+                            $Percentage = [math]::Round($i/$APITotalPages*100)
+                            Write-Progress -Activity ("Completed $i out of $APITotalPages") -Status "Current progress: $Percentage%"  -PercentComplete $Percentage
+                        } 
             
                     
-                    Write-Verbose "Info: Currently at page $i out $APITotalPages"
-                    $NewURI = ($URI + "?page=$i")
-                    Write-Verbose "Action: Making the the API call on $NewURI"
-                    $APIdataJson += ConvertFrom-Json (Invoke-WebRequest -URI $NewURI -Method $Method -Headers $Headers -Verbose)
+                        Write-Verbose "Currently at page $i out $APITotalPages"
+                        $NewURI = ($APIdata.Headers.Link -split ";" -split ",")[0] -replace "\<" -replace "\>" -replace "page=1", "page=$i"
+                        Write-Verbose "Making the the API call on $NewURI"
+                        $APIdataJson += ConvertFrom-Json (Invoke-WebRequest -URI $NewURI -Method $Method -Headers $Headers -Verbose)
 
-                } while ($i -ne $APITotalPages)
+                    } while ($i -ne $APITotalPages)
 
 
-            }
+                }
     
-            Write-Verbose "Info: API call completed"
-            Write-Verbose "Info: Returning all the API data"
-            return $APIdataJson
+                Write-Verbose "API call completed"
+                Write-Verbose "Returning all the API data"
+                return $APIdataJson
+            }
+            Else {
+                Write-Warning "API call returned no data"
+            }
 
         }
 
