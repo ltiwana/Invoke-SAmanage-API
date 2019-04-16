@@ -10,7 +10,6 @@ Function Invoke-SAmanageJsonAPI {
         [string]$BearerToken,
         $Body,
         [int]$Results = 100,
-        [Switch]$Verbose,
         [Switch]$AllPages = $False
     )
 
@@ -37,7 +36,7 @@ Function Invoke-SAmanageJsonAPI {
 
             Write-Verbose "Making first Get API call"
 
-            $APIdata = Invoke-WebRequest -URI $URI -Method $Method -Headers $Headers -Verbose
+            $APIdata = Invoke-WebRequest -URI $URI -Method $Method -Headers $Headers -UseBasicParsing
 
             if ($APIdata -ne $null -or $APIdata) {
                 $APIdataJson += ConvertFrom-Json $APIdata
@@ -66,7 +65,7 @@ Function Invoke-SAmanageJsonAPI {
                         Write-Verbose "Currently at page $i out $APITotalPages"
                         $NewURI = ($APIdata.Headers.Link -split ";" -split ",")[0] -replace "\<" -replace "\>" -replace "page=1", "page=$i"
                         Write-Verbose "Making the the API call on $NewURI"
-                        $APIdataJson += ConvertFrom-Json (Invoke-WebRequest -URI $NewURI -Method $Method -Headers $Headers -Verbose)
+                        $APIdataJson += ConvertFrom-Json (Invoke-WebRequest -URI $NewURI -Method $Method -Headers $Headers -UseBasicParsing)
 
                     } while ($i -ne $APITotalPages)
 
@@ -90,7 +89,7 @@ Function Invoke-SAmanageJsonAPI {
                 Write-Error "Body parameter was not used"
             }
             else {
-                $APIdataJson += ConvertFrom-Json (Invoke-WebRequest -URI $URI -Headers $Headers -Method $Method -Body $BodyNull -Verbose)
+                $APIdataJson += ConvertFrom-Json (Invoke-WebRequest -URI $URI -Headers $Headers -Method $Method -Body $BodyNull -UseBasicParsing)
                 return $APIdataJson
             }
 
