@@ -7,16 +7,18 @@ Here are the variables that you can use or pass:
 * Get all Incidents
 * $APIURI = "https://api.samanage.com/incidents.json" 
 
-* Method is Get or Put
+### Switch:
+* **-APIURI** provide the api url.
+* **-Method** is Get or Put
 
-* BearerToken is what you need to authenticate and here is how to get it: https://www.samanage.com/docs/api/introduction
+* **-BearerToken** is what you need to authenticate and here is how to get it: https://www.samanage.com/docs/api/introduction
 
-* Use -AllPages to get unlimited results or get results from all available pages.
-* Use -Pages to get a specific number of pages back. For instance -Pages 10 or -Pages 39
-* Use -Startpage or -EndPage to get a result between certain pages. Useful in case your script crashes.
+* Use **-AllPages** to get unlimited results or get results from all available pages.
+* Use **-Pages** to get a specific number of pages back. For instance -Pages 10 or -Pages 39
+* Use **-Startpage** or **-EndPage** to get a result between certain pages. Useful in case your script crashes.
 
 
-* Use -verbose to see what is happening behind the scenes.
+* Use **-verbose** to see what is happening behind the scenes.
 
 By default, the Invoke-SAmanageJsonAPI function returns JSON string and converts it into PowerShell object or table form.
 
