@@ -1,5 +1,6 @@
 Function Invoke-SAmanageJsonAPI {
     
+    
     Param (        
         [cmdletbinding()]
         [Parameter(Position=0,Mandatory=$True)]
@@ -10,11 +11,15 @@ Function Invoke-SAmanageJsonAPI {
         [string]$BearerToken,
         $Body,
         [int]$Results = 100,
-        [Switch]$AllPages = $False
+        [int]$Pages = 0,
+        [int]$StartPage = 0,
+        [int]$EndPage = 0,
+        [Switch]$AllPages
     )
 
 
     [int]$i = 1
+    [int]$j = 1
     [array]$APIdataJson = @()
     
 
@@ -45,23 +50,41 @@ Function Invoke-SAmanageJsonAPI {
 
                 Write-Verbose "Checking API header for total number content pages"
                 Write-Verbose "$APITotalPages pages found"
+           
+                if ($APITotalPages -gt "1" -and ($AllPages -eq $True -or $Pages -gt "1" -or (($StartPage -and $EndPage) -and $EndPage -gt 1))) {
+                    
+                    if ($AllPages) {Write-Verbose "User requested all pages"}
+                    elseif ( $Pages -gt "1") {
+                        Write-Verbose "User requested $Pages out of $APITotalPages pages"
+                        $APITotalPages = $Pages
+                    }
+                    elseif ($StartPage -and $EndPage) {
+                        Write-Verbose "User requested pages between $StartPage and $EndPage"
+                        
+                        if ($StartPage -gt 1) { 
+                            $i = $StartPage - 1 
+                            write-verbose "Discarding first page data"
+                            $APIdataJson = $null
 
-                if ($APITotalPages -gt "1" -and $AllPages -eq $True) {
-        
-                    Write-Verbose "User requested all pages"
-                    Write-Verbose "Getting results from each page"
+                        }
+                        $APITotalPages = $EndPage
+                        
+                        
+                    }
+
+                    Write-Verbose "Getting results from request pages"
 
                     do {
-                    
+
                         $i++
+                        $j++
 
                         if ($VerbosePreference -eq "Continue") {
                        
-                            $Percentage = [math]::Round($i/$APITotalPages*100)
-                            Write-Progress -Activity ("Completed $i out of $APITotalPages") -Status "Current progress: $Percentage%"  -PercentComplete $Percentage
+                            $Percentage = [math]::Round($j/$APITotalPages*100)
+                            Write-Progress -Activity ("Completed $i out of $APITotalPages pages") -Status "Current progress: $Percentage%"  -PercentComplete $Percentage
                         } 
-            
-                    
+
                         Write-Verbose "Currently at page $i out $APITotalPages"
                         $NewURI = ($APIdata.Headers.Link -split ";" -split ",")[0] -replace "\<" -replace "\>" -replace "page=1", "page=$i"
                         Write-Verbose "Making the the API call on $NewURI"
@@ -99,6 +122,6 @@ Function Invoke-SAmanageJsonAPI {
 
     }
 
-
+    Write-Progress -Activity ("Completed $i out of $APITotalPages") -Status "Current progress: $Percentage%"  -Completed
     
 }
